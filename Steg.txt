@@ -1,0 +1,55 @@
+import sys
+
+try:
+    OFF_SET = 100
+    operator = sys.argv[1]
+    if operator == "-e":
+        #If encrypt
+        #Convert ascii to binary
+        secret = ""
+        if len(sys.argv) >= 5:
+            textFileName = sys.argv[4]
+            testFile = open(textFileName, "r")
+            secret = testFile.read()
+            print(secret)
+        else:
+            secret = input("Enter the secret message: ")
+        binaryForm = "".join(format(ord(x), "08b") for x in secret)
+        print(binaryForm)
+        #Open image and replace each LSB
+        imageFileName = sys.argv[2]
+        imageFile = open(imageFileName, "r+b")
+        imageFile.seek(OFF_SET)
+        for bytePlace, diget in enumerate(binaryForm):  
+            byte = bytearray(imageFile.read(1))
+            print(byte)
+            #Modify LSD
+            print(byte)
+            # imageFile.write(byte)
+            # #Replaces byte in image
+            # imageFile.seek(bytePlace)
+            # imageFile.write(byte)
+            # print(imageFile.read(1))
+
+    elif operator == "-d":
+        #If decrpyt 
+        #Open image and grab each LSB
+        imageFileName = sys.argv[2]
+        imageFile = open(imageFileName, "rb")
+        #Convert binary to ascii
+        secret = "file name: " + sys.argv[2]
+        binaryForm = "".join(format(ord(x), "08b") for x in secret)
+        message = "bruh"
+        print(message)
+        #Insert into file
+        textFileName = sys.argv[3]
+        textFile = open(textFileName, "w")
+        textFile.write(message)
+        textFile.close()
+    print("Process Finished")
+except OSError:
+    print("Error: ASCII input file does not exist")
+except IndexError:
+    print("Error: Too few arguments")
+    print("Format for encryption: -e <original file image name> <modified image name> [input ASCII text file name]")
+    print("Format for decryption: -d <modified image name> [output ASCII text file name]")
