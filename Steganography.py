@@ -4,19 +4,37 @@
 
 import sys
 
+def extractBinary(fileName, msgLen, offset):
+    with open(fileName, "rb") as imageFile:
+        imageFile.read(OFF_SET + offset)
+        binaryMsg = ""
+        for x in range(msgLen):
+            byte = bytearray(imageFile.read(1))
+            if (byte[0] % 2 == 1):
+                binaryMsg += "1"
+            else:
+                binaryMsg += "0"
+    return binaryMsg
+
 try:
     secret = ""
     OFF_SET = 100
     operator = sys.argv[1]
     if operator == "-e":#If encrypt
-        #Convert ascii to binary
+        #Recieve user message input
         if len(sys.argv) >= 5:
             textFileName = sys.argv[4]
             testFile = open(textFileName, "r")
             secret = testFile.read()
         else:
             secret = input("Enter the secret message: ")
+        #Convert ascii to binary
         binaryForm = "".join(format(ord(x), "08b") for x in secret)
+        msgLength = len(binaryForm)
+        print(msgLength)
+        binMsgLength = format(msgLength, '0{}b'.format(8))
+        print(binMsgLength)
+        binaryForm = binMsgLength + binaryForm
         #Open image and replace each LSB
         imageFileName = sys.argv[2]
         imageFile = open(imageFileName, "r+b")
@@ -36,19 +54,14 @@ try:
             bytePlace += 1
             imageFile.seek(bytePlace)
 
-    elif operator == "-d":#If decrpyt 
-        msglen = 12 * 8
-        #Open image and grab each LSB
+    elif operator == "-d":#If decrpyt
+        # #Find message length
         imageFileName = sys.argv[2]
-        with open(imageFileName, "rb") as imageFile:
-            imageFile.read(OFF_SET)
-            binaryMsg = ""
-            for x in range(msglen):
-                byte = bytearray(imageFile.read(1))
-                if (byte[0] % 2 == 1):
-                    binaryMsg += "1"
-                else:
-                    binaryMsg += "0"
+        msgLenStr = extractBinary(imageFileName, 8, 0)        
+        msglen = int(format(int(msgLenStr, 2), "d"))
+        print(msglen)
+        #Open image and grab each LSB
+        binaryMsg = extractBinary(imageFileName, msglen*8, 8)
         #Binary string to ASCII
         for x in range(int(msglen/8)):
             upBnd = int((x * 8) + 8)
