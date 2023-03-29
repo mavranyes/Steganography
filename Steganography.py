@@ -5,6 +5,7 @@
 import sys
 import random
 import time
+import shutil
 
 def extractBinary(fileName, msgLen):
     global offset
@@ -38,7 +39,7 @@ def replaceBinary(imageFileName, binaryMsg):
                 imageFile.seek(bytePlace)
 
 try:
-    global offset 
+    global offset
     offset = 100
     secret = ""
     msgLenInd = 16
@@ -52,6 +53,8 @@ try:
             asciiMsg = testFile.read()
         else:
             asciiMsg = input("Enter the secret message: ")
+        #if len(sys.argv) == 4:
+        shutil.copyfile(sys.argv[2], sys.argv[3])
         #Convert ascii to binary
         binMsg = "".join(format(ord(x), "08b") for x in asciiMsg)
         #Find message length
@@ -60,7 +63,7 @@ try:
             sys.exit()
         binMsg = format(len(binMsg), '0{}b'.format(msgLenInd)) + binMsg
         #Open image and replace each LSD
-        imageFileName = sys.argv[2]
+        imageFileName = sys.argv[3]
         replaceBinary(imageFileName, binMsg)
         
     elif operator == "-d":#If decrpyt
@@ -81,6 +84,7 @@ try:
             with open(textFileName, "w") as textFile:
                 textFile.write(secret)
         else:
+            print("Decrypted Message:")
             print(secret)
 
     elif operator == "-c":#If cleaning
@@ -91,12 +95,12 @@ try:
         binMsg = "".join(format(ord(x), "08b") for x in asciiMsg)
         #Open image and replace each LSD
         replaceBinary(imageFileName, binMsg)
-        
-    print("Process Finished")
+    
+    print("\nProcess Finished")
 except OSError:
     print("Error: ASCII input file does not exist")
 except IndexError:
     print("Error: Too few arguments")
-    print("Format for encryption: -e <original file image name> <modified image name> [input ASCII text file name]")
+    print("Format for encryption: -e <original image name> <modified image name> [input ASCII text file name]")
     print("Format for decryption: -d <modified image name> [output ASCII text file name]")
-    print("Format for cleaning: -d <modified image name>")
+    print("Format for cleaning: -c <modified image name>")
