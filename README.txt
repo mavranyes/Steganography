@@ -6,6 +6,8 @@ The first, encryption, takes in a image file name to modify, an image output fil
 store the altered photo, and an input ASCII text file to be encoded and embedded in the
 image file. 
 Format for encryption: -e <original image name> <modified image name> [input ASCII text file name]
+Or formatted as: -e <original image name> [input ASCII text file name]
+In this second format, the inputted image is directly modified and no other files are created
 
 The second, decryption, takes in a modified image and extracts the ASCII text from it, outputting
 the plain text to a specified file or if one isn't provided, to the terminal

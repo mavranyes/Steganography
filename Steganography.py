@@ -47,14 +47,23 @@ try:
     operator = sys.argv[1]
     if operator == "-e":#If encrypt
         #Recieve user message input
-        if len(sys.argv) >= 5:
-            textFileName = sys.argv[4]
+        if len(sys.argv) == 3:
+            asciiMsg = input("Enter the secret message: ")
+            imageFileName = sys.argv[2]
+        elif sys.argv[3][-4:] == ".bmp":
+            if len(sys.argv) == 5:
+                textFileName = sys.argv[4]
+                testFile = open(textFileName, "r")
+                asciiMsg = testFile.read()
+            else:
+                asciiMsg = input("Enter the secret message: ")
+            imageFileName = sys.argv[3]
+            shutil.copyfile(sys.argv[2], sys.argv[3])
+        elif sys.argv[3][-4:] == ".txt": 
+            textFileName = sys.argv[3]
             testFile = open(textFileName, "r")
             asciiMsg = testFile.read()
-        else:
-            asciiMsg = input("Enter the secret message: ")
-        #if len(sys.argv) == 4:
-        shutil.copyfile(sys.argv[2], sys.argv[3])
+            imageFileName = sys.argv[2]
         #Convert ascii to binary
         binMsg = "".join(format(ord(x), "08b") for x in asciiMsg)
         #Find message length
@@ -63,7 +72,6 @@ try:
             sys.exit()
         binMsg = format(len(binMsg), '0{}b'.format(msgLenInd)) + binMsg
         #Open image and replace each LSD
-        imageFileName = sys.argv[3]
         replaceBinary(imageFileName, binMsg)
         
     elif operator == "-d":#If decrpyt
@@ -96,11 +104,15 @@ try:
         #Open image and replace each LSD
         replaceBinary(imageFileName, binMsg)
     
+    else:
+        print("Error: Invalid operator given")
+
     print("\nProcess Finished")
 except OSError:
     print("Error: ASCII input file does not exist")
 except IndexError:
     print("Error: Too few arguments")
     print("Format for encryption: -e <original image name> <modified image name> [input ASCII text file name]")
+    print("Or format: -e <image name to modify> [input ASCII text file name]")
     print("Format for decryption: -d <modified image name> [output ASCII text file name]")
     print("Format for cleaning: -c <modified image name>")
