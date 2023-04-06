@@ -6,6 +6,7 @@ import sys
 import random
 import time
 import shutil
+from pathlib import Path
 
 def extractBinary(fileName, msgLen):
     global offset
@@ -42,7 +43,7 @@ try:
     global offset
     offset = 100
     secret = ""
-    msgLenInd = 16
+    msgLenInd = 32 #Controls the possible length of message
     maxMsgCharSize = pow(2, msgLenInd) / 8
     operator = sys.argv[1]
     if operator == "-e":#If encrypt
@@ -64,13 +65,23 @@ try:
             testFile = open(textFileName, "r")
             asciiMsg = testFile.read()
             imageFileName = sys.argv[2]
-        #Convert ascii to binary
-        binMsg = "".join(format(ord(x), "08b") for x in asciiMsg)
-        #Find message length
-        if len(binMsg) > maxMsgCharSize:
+
+        #Check if image file is large enough
+        fileSize = Path(imageFileName).stat().st_size
+        imageCharCapacity = ((fileSize / 8) - (offset * 8)) / 8
+        if len(asciiMsg) > (imageCharCapacity):
+            print("Error: Image file not large enough to store message. Length cannot exceed %d characters for this image!" % (int(imageCharCapacity)))
+            sys.exit()
+
+        #Check if message is too large
+        if len(asciiMsg) > maxMsgCharSize:
             print("Error: Message length cannot exceed %d characters!" % (int(maxMsgCharSize)))
             sys.exit()
+
+        #Convert ascii to binary
+        binMsg = "".join(format(ord(x), "08b") for x in asciiMsg)
         binMsg = format(len(binMsg), '0{}b'.format(msgLenInd)) + binMsg
+
         #Open image and replace each LSD
         replaceBinary(imageFileName, binMsg)
         
